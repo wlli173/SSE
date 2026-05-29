@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mercado em Tempo Real · SSE Demo</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%88%3C/text%3E%3C/svg%3E" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">📈</span>
+      <div>
+        <h1>SSE Market</h1>
+        <p class="tag">Simulador de mercado financeiro em tempo real</p>
+      </div>
+    </div>
+
+    <div class="status">
+      <span id="status-dot" class="dot dot--off"></span>
+      <span id="status-text">Desconectado</span>
+      <button id="toggle-btn" class="btn">Conectar</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="summary">
+      <div class="card">
+        <span class="card-label">Última atualização</span>
+        <span class="card-value" id="last-update">—</span>
+      </div>
+      <div class="card">
+        <span class="card-label">Eventos recebidos</span>
+        <span class="card-value" id="events-count">0</span>
+      </div>
+      <div class="card">
+        <span class="card-label">Ativos em alta</span>
+        <span class="card-value up" id="up-count">0</span>
+      </div>
+      <div class="card">
+        <span class="card-label">Ativos em baixa</span>
+        <span class="card-value down" id="down-count">0</span>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="panel">
+        <h2>Cotações</h2>
+        <div class="table-wrap">
+          <table class="quotes">
+            <thead>
+              <tr>
+                <th>Ativo</th>
+                <th>Empresa</th>
+                <th>Setor</th>
+                <th class="num">Preço</th>
+                <th class="num">Variação</th>
+                <th class="num">%</th>
+              </tr>
+            </thead>
+            <tbody id="quotes-body">
+              <tr><td colspan="6" class="empty">Aguardando conexão…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+
+      <article class="panel">
+        <h2>Stream de eventos</h2>
+        <ul id="event-log" class="log">
+          <li class="log-empty">Os eventos SSE recebidos aparecerão aqui.</li>
+        </ul>
+      </article>
+    </section>
+
+    <footer class="explainer">
+      <h3>Arquitetura</h3>
+      <p>
+        Esta aplicação é dividida em <strong>dois containers Docker</strong>:
+        o <code>sse-server</code> (Node.js + Express) gera as cotações e expõe
+        o stream <code>/events</code>; o <code>sse-client</code> (nginx) serve
+        esta SPA e faz <em>proxy reverso</em> para o backend. O navegador
+        sempre fala com a mesma origem — não há CORS, e o proxy preserva o
+        stream com <code>proxy_buffering off</code>.
+      </p>
+      <p>
+        No código JavaScript: <code>new EventSource('/events')</code>. O
+        servidor mantém a conexão HTTP aberta e empurra mensagens no formato
+        <code>text/event-stream</code> sempre que houver novidades — sem
+        polling, sem WebSocket.
+      </p>
+    </footer>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

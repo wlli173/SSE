@@ -1,0 +1,50 @@
+# Stack SSE Market — dois serviços isolados:
+#
+#   sse-server : gera as cotações e expõe o stream /events (Node + Express)
+#   sse-client : serve a SPA (nginx) e faz proxy reverso para o backend
+#
+# Eles se enxergam pela rede interna `sse-net` via DNS do compose.
+# Só o cliente é publicado no host (porta 8080); o backend fica isolado,
+# mas pode ser publicado também descomentando o bloco `ports`.
+
+services:
+  sse-server:
+    build: ./server
+    image: sse-market-server:latest
+    container_name: sse-server
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+    # ports:
+    #   - "3000:3000"   # opcional: expor o backend direto para o host
+    networks:
+      - sse-net
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  sse-client:
+    build: ./client
+    image: sse-market-client:latest
+    container_name: sse-client
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    depends_on:
+      sse-server:
+        condition: service_healthy
+    networks:
+      - sse-net
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+networks:
+  sse-net:
+    driver: bridge
