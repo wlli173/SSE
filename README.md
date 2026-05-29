@@ -1,8 +1,6 @@
 # SSE Market — Simulador de Mercado Financeiro com Server-Sent Events
 
-Aplicação de exemplo para demonstrar **SSE (Server-Sent Events)** em uma
-arquitetura realista: o **gerador de mensagens** e o **cliente** rodam em
-containers Docker separados.
+Aplicação de exemplo para demonstrar **SSE (Server-Sent Events)**
 
 ![stack](https://img.shields.io/badge/stack-Node%20%2B%20Express%20%2B%20nginx-339933) ![docker](https://img.shields.io/badge/orquestra%C3%A7%C3%A3o-Docker%20Compose-2496ED) ![sse](https://img.shields.io/badge/protocolo-SSE-blue)
 
@@ -73,16 +71,6 @@ SSE/
         ├── styles.css
         └── app.js
 ```
-
-## Por que separar em dois serviços?
-
-| Aspecto             | Monolito                          | Split (server + client)                |
-| ------------------- | --------------------------------- | -------------------------------------- |
-| Escalabilidade      | escala o backend e o estático juntos | escala backend isoladamente            |
-| Tecnologia          | Node serve estáticos (subótimo)   | nginx serve estáticos (rápido + cache) |
-| Deploy              | uma imagem grande                 | duas imagens pequenas e versionáveis   |
-| Falha               | derruba SPA junto                 | nginx mantém a SPA mesmo se o backend falhar |
-| Caso de uso real    | demo                              | produção                               |
 
 ## Pontos-chave para SSE em produção
 
